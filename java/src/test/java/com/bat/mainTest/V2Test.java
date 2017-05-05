@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by Administrator on 2017/5/4 0004.
  */
-public class MainTest {
+public class V2Test {
     //操作根目录
     private final String FILE_DIR_PATH = "D:\\迅雷下载";
     //文件头列表
