@@ -3,6 +3,8 @@ package com.bat.mainTest;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -68,25 +70,41 @@ public class MainTest {
         }
     }
 
+    @Test
+    public void testNio() throws IOException {
+        File file = new File("D:\\迅雷下载\\NekoHTMLBaiduSearcher(1).zip");
+        copyToPath(new FileInputStream(file),new FileOutputStream("D:\\迅雷下载\\zip\\NekoHTMLBaiduSearcher(1).zip"));
+    }
+
     //获得头文件字符串
     private String getTypeOfFile(File file) throws IOException {
+
         FileInputStream fileInputStream = new FileInputStream(file);
-        byte[] byteps = new byte[10];
-        //TODO
-        fileInputStream.read(byteps,0,byteps.length);
+        FileChannel fileChannel = fileInputStream.getChannel();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(10);
+        int byteRead = fileChannel.read(byteBuffer);
+        System.out.println(byteRead);
         fileInputStream.close();
         //转化为16进制
-        return bytesToHexString(byteps);
+        return bytesToHexString(byteBuffer.array());
     }
 
     //流传输
-    public boolean copyToPath(InputStream input,OutputStream output) throws IOException {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        byte[] bytes = new byte[4096];
-        while (input.read(bytes)>0){
-            output.write(bytes,0,bytes.length);
+    public boolean copyToPath(FileInputStream input,FileOutputStream output) throws IOException {
+        //channel
+        FileChannel fileInputChannel = input.getChannel();
+        FileChannel fileOutputChannel = output.getChannel();
+        //buffer
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        //read and write
+        int typeRead = fileInputChannel.read(byteBuffer);
+        while(typeRead > 0){
+            byteBuffer.flip();
+            fileOutputChannel.write(byteBuffer);
+            byteBuffer.clear();
+            typeRead = fileInputChannel.read(byteBuffer);
         }
+
         return true;
     }
     //将获得的字节转换为16进制，用来对比文件头表
